@@ -1,46 +1,36 @@
-const express = require('express')
-const morgan = require('morgan')
-const app = express()
+const Express = require('express');
+const morgan = require('morgan');
+const app = Express();
+const Mongoos = require('./models/user.js'); 
+
+// Middleware
+app.use(morgan('dev'));
+
+// Middleware to get Post data (buildin middleware)
+app.use(Express.urlencoded({ extended: true }));
+app.use(Express.json());
+
+// Build in middleware for Css
+app.use(Express.static('public'));
 
 
-app.use(morgan('dev'))
+app.set('view engine', 'ejs');
 
-app.set('view engine','ejs')
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(express.static('public')) 
+app.get('/', (req, res) => {
+  res.render('index');
+});
 
-app.get('/',(req,res) => {
-    res.render('index')
-})
+app.get('/about', (req, res) => {
+  res.send('About Page');
+});
 
-app.get('/register',(req,res) =>{
-    res.render('register')
-})
+app.get('/contact', (req, res) => {
+  res.send('Contact Page');
+});
+app.post('/login', (req, res) => {
+    console.log(req.body);
+    res.send('Login Successful');
+});
 
-app.get('/get-users',(req,res)=>{
-    usermodel.find().then((users)=> {
-        res.send(users)
-    })
-})
-
-app.post('/register', async (req,res) =>{
-
-    const{ username, email ,password} = req.body
-
-   const newuser = await usermodel.create({
-        username: username,
-        email: email,
-        password: password
-
-    })
-    res.send(newuser)
-})
-
-app.post('/get-form-data',(req,res) => {
-    console.log(req.body)
-    res.send('data received')
-})
-
-app.listen(8080)
+app.listen(8080);
