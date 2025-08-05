@@ -1,7 +1,8 @@
 const Express = require('express');
 const morgan = require('morgan');
 const app = Express();
-const Mongoos = require('./models/user.js'); 
+const UserModel = require('./models/user.js'); 
+const DBconnection = require('./Config/DB.js');
 
 // Middleware
 app.use(morgan('dev'));
@@ -17,7 +18,7 @@ app.use(Express.static('public'));
 app.set('view engine', 'ejs');
 
 
-app.get('/', (req, res) => {
+app.get('/login', (req, res) => {
   res.render('index');
 });
 
@@ -28,9 +29,43 @@ app.get('/about', (req, res) => {
 app.get('/contact', (req, res) => {
   res.send('Contact Page');
 });
-app.post('/login', (req, res) => {
-    console.log(req.body);
-    res.send('Login Successful');
+
+//CRUD Oprations
+
+app.get ("/get-user", async (req, res) => {
+    UserModel.find().then((users) =>{
+      res.send(users);
+    }
+    )
+})
+
+app.get ('/user-update', async (req, res) => {
+  const {id} = req.params;
+  const {username, password} = req.body;
+  const user = await UserModel.findByIdAndUpdate(id, {username, password});
+  res.send(user);
+})
+
+app.get ('/user-delete', async (req, res) => {
+  const {id} = req.params;
+  const user = await UserModel.findByIdAndDelete(id);
+  res.send(user);
+})
+
+
+app.post('/login', async (req, res) => {
+
+
+    const {username, password} = req.body;
+
+    const Newuser = await UserModel.create({
+      username:username, 
+      password:password
+    })
+
+    res.send('Login Successfully');
 });
+
+
 
 app.listen(8080);
